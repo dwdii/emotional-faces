@@ -8,7 +8,7 @@
 __author__ = 'Daniel Dittenhafer'
 
 import os
-#import cv2
+import cv2
 import requests
 import operator
 import csv
@@ -172,6 +172,8 @@ def labelFaces():
                 # throttle so Msft doesn't get mad at us...
                 time.sleep(waitSecs)
 
+
+
 def transformFaces():
     destPath = "C:\Code\Python\emotional-faces\data\\transformed"
     srcPath = "C:\Code\Python\emotional-faces\data\Resize"
@@ -182,18 +184,49 @@ def transformFaces():
     print(len(theFiles))
 
     for f in theFiles[start:end]:
+        img = misc.imread(f)
 
-        img2 = dwdii_transforms.reflectY(f)
-        fileName = os.path.basename(f)
-        destFile = destPath + "\\reflectY-" + fileName
-        misc.imsave(destFile, img2)
+        # 1. Reflect Y
+        imgReflectY = dwdii_transforms.reflectY(img)
+        dwdii_transforms.saveImg(destPath, "reflectY", f, imgReflectY)
 
-        img2 = dwdii_transforms.rotate45(f)
-        fileName = os.path.basename(f)
-        destFile = destPath + "\\rotate45-" + fileName
-        misc.imsave(destFile, img2)
+        # 2. Rotate 10
+        imgRotate5 = dwdii_transforms.rotate5(img)
+        dwdii_transforms.saveImg(destPath, "rotate5", f, imgRotate5)
 
-        plt.imshow(img2, cmap=cm.gray)
+        # 3. cvErode
+        newImg = dwdii_transforms.cvErode(img)
+        dwdii_transforms.saveImg(destPath, "cvErode", f, newImg)
+
+        # 4. cvDilate
+        newImg = dwdii_transforms.cvDilate(img)
+        dwdii_transforms.saveImg(destPath, "cvDilate", f, newImg)
+
+        # 5. cvMedianBlur
+        newImg = dwdii_transforms.cvMedianBlur(img)
+        dwdii_transforms.saveImg(destPath, "cvMedianBlur", f, newImg)
+
+        # 6. cvExcessiveSharpening
+        newImg = dwdii_transforms.cvExcessiveSharpening(img)
+        dwdii_transforms.saveImg(destPath, "cvExcessiveSharpening", f, newImg)
+
+        # 7. cvBlurMotion1
+        newImg = dwdii_transforms.cvBlurMotion1(img)
+        dwdii_transforms.saveImg(destPath, "cvBlurMotion1", f, newImg)
+
+        # 8. cvBlurMotion2
+        newImg = dwdii_transforms.cvBlurMotion2(img)
+        dwdii_transforms.saveImg(destPath, "cvBlurMotion2", f, newImg)
+
+        # 9. cvEdgeEnhancement
+        newImg = dwdii_transforms.cvEdgeEnhancement(img)
+        dwdii_transforms.saveImg(destPath, "cvEdgeEnhancement", f, newImg)
+
+        # 10. cvDilate2
+        newImg = dwdii_transforms.cvDilate2(img)
+        dwdii_transforms.saveImg(destPath, "cvDilate2", f, newImg)
+
+        plt.imshow(newImg, cmap=cm.gray)
         plt.show()
         print "done"
 
@@ -202,6 +235,8 @@ def main():
     """Our main function."""
 
     #labelFaces()
+
+    print "OpenCV version: " + cv2.__version__
 
     transformFaces()
 
