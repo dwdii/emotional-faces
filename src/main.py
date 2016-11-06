@@ -177,7 +177,7 @@ def labelFaces():
 def transformFaces():
     destPath = "C:\Code\Python\emotional-faces\data\\transformed"
     srcPath = "C:\Code\Python\emotional-faces\data\Resize"
-    start = 1000
+    start = 5924
     end = start + 1 #1500
 
     theFiles = list_files(srcPath, True)
