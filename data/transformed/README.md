@@ -30,3 +30,11 @@
 ## cvMedianBlur
 
 ![cvMedianBlur](cvMedianBlur-Jennifer_Aniston_0016.jpg)
+
+## reflectY
+
+![reflectY](reflectY-Jennifer_Aniston_0016.jpg)
+
+## rotate5
+
+![rotate5](rotate5-Jennifer_Aniston_0016.jpg)

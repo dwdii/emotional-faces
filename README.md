@@ -1,6 +1,6 @@
 
 
-### Labeled Faces in the Wild
+### emotional-faces
 
-http://vis-www.cs.umass.edu/lfw/lfw-deepfunneled.tgz
+This repo contains code to aid with facial image manipution using Scipy and OpenCV.
 
