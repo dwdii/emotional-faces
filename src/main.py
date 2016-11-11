@@ -25,13 +25,17 @@ _url = 'https://api.projectoxford.ai/emotion/v1.0/recognize'
 _key = "2f1d134983cd4fa78f9f758fa1dd4d39"  # Here you have to paste your primary key
 _maxNumRetries = 10
 
-def list_files(path, recurse):
+def list_files(path, recurse, onlyFilename = False):
     # returns a list of names (with extension, without full path) of all files
     # in folder path
     files = []
     for name in os.listdir(path):
         filepath = os.path.join(path, name)
         if os.path.isfile(filepath):
+
+            if(onlyFilename):
+                filepath = name
+
             files.append(filepath)
         elif recurse:
             files += list_files(filepath, recurse)
@@ -230,6 +234,59 @@ def transformFaces():
         plt.show()
         print "done"
 
+def compareFolders():
+    path = "C:\Code\Python\emotional-faces\data\Resize"
+    path2 = "C:\Code\Other\\facial_expressions\images"
+
+    efrFiles = list_files(path, True, True)
+    feiFiles = list_files(path2, True, True)
+
+    efrMissingInFei = []
+    for f in efrFiles:
+        if f not in feiFiles:
+            print f
+            efrMissingInFei.append(f)
+
+    #print efrMissingInFei
+
+    feiMissingInEfr = []
+    for f in feiFiles:
+        if f not in efrFiles:
+            print f
+            feiMissingInEfr.append(f)
+
+    #print feiMissingInEfr
+
+def compareLegendAndFiles():
+    path2 = "C:\Code\Other\\facial_expressions\images"
+    emoFile = 'C:\Code\Other\\facial_expressions\data\legend.csv'
+    feiFiles = list_files(path2, True, True)
+    waitSecs = 20
+
+    # Load the existing CSV so we can skip what we've already worked on
+    emoDict = {}
+    with open(emoFile, 'r') as csvfile:
+        emoCsv = csv.reader(csvfile)
+        for row in emoCsv:
+            emoDict[row[1]] = row[2]
+
+    for f in feiFiles:
+        if f not in emoDict:
+            print f
+
+            filepath = os.path.join(path2, f)
+            rj = detectFacesFromDiskFile(filepath, _key)
+            if 0 < len(rj):
+                scores = rj[0]["scores"]
+                emo = max(scores.iteritems(), key=operator.itemgetter(1))[0]
+
+                # Save the results
+                #print(fileName + ": " + emo)
+                print "dwdii," + f + "," + emo
+
+            # throttle so Msft doesn't get mad at us...
+            time.sleep(waitSecs)
+
 
 def main():
     """Our main function."""
@@ -238,7 +295,12 @@ def main():
 
     print "OpenCV version: " + cv2.__version__
 
-    transformFaces()
+    #transformFaces()
+
+    #compareFolders()
+    compareLegendAndFiles()
+
+    print "Done"
 
 
 # This is the main of the program.
