@@ -8,11 +8,53 @@
 # An example of each transformation can be found here: https://github.com/dwdii/emotional-faces/tree/master/data/transformed
 #
 __author__ = 'Daniel Dittenhafer'
+import csv
 import os
+import sys
+
+from scipy import misc
+
 import numpy as np
+
 from scipy import misc
 from scipy import ndimage
 import cv2
+
+def load_training_metadata(metadataFile):
+    # Load the existing CSV so we can skip what we've already worked on
+    emoDict = {}
+    with open(metadataFile, 'r') as csvfile:
+        emoCsv = csv.reader(csvfile)
+        headers = emoCsv.next()
+        for row in emoCsv:
+            emoDict[row[1]] = row[2]
+
+    return emoDict
+
+def load_data(metadataFile, imagesPath, verbose=True):
+    """Helper function to load the training/test data"""
+    X_data = []
+    Y_data = []
+
+    # Load the CSV meta data
+    emoMetaData = load_training_metadata(metadataFile)
+    total = len(emoMetaData)
+    ndx = 0.0
+
+    # load the image bits based on what's in the meta data
+    for k in emoMetaData.keys():
+        filepath = os.path.join(imagesPath, k)
+
+        if verbose and ndx % 200 == 0:
+            msg = "{0:f}: {1}\r\n".format(ndx/total, k)
+            sys.stdout.writelines(msg )
+
+        img = misc.imread(filepath)
+        X_data.append(img)
+        Y_data.append(emoMetaData[k])
+        ndx += 1
+
+    return X_data, Y_data
 
 def saveImg(destinationPath, prefix, filepath, imgData):
     """Helper function to enable a common way of saving the transformed images."""
