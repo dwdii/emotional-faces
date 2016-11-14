@@ -31,28 +31,66 @@ def load_training_metadata(metadataFile):
 
     return emoDict
 
-def load_data(metadataFile, imagesPath, verbose=True):
+def emotionNumerics():
+    emoNdx = {}
+    emoNdx["anger"] = 0
+    emoNdx["disgust"] = 1
+    emoNdx["neutral"] = 2
+    emoNdx["happiness"] = 3
+    emoNdx["surprise"] = 4
+    emoNdx["fear"] = 5
+    emoNdx["sadness"] = 6
+    return emoNdx
+
+def numericEmotions():
+    emoNdx = emotionNumerics()
+    ndxEmo = {}
+    for k in emoNdx:
+        ndxEmo[emoNdx[k]] = k
+
+    return ndxEmo
+
+def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=True, verboseFreq = 200, maxData = None, imgSize = (350, 350)):
     """Helper function to load the training/test data"""
-    X_data = []
-    Y_data = []
 
     # Load the CSV meta data
     emoMetaData = load_training_metadata(metadataFile)
     total = len(emoMetaData)
     ndx = 0.0
 
+    if maxData is not None:
+        total = maxData
+
+    # Allocate containers for the data
+    X_data = np.zeros([total, 350, 350])
+    Y_data = np.zeros([total, 1], dtype=np.int8)
+
     # load the image bits based on what's in the meta data
     for k in emoMetaData.keys():
         filepath = os.path.join(imagesPath, k)
 
-        if verbose and ndx % 200 == 0:
+        if verbose and ndx % verboseFreq == 0:
             msg = "{0:f}: {1}\r\n".format(ndx/total, k)
             sys.stdout.writelines(msg )
 
         img = misc.imread(filepath)
-        X_data.append(img)
-        Y_data.append(emoMetaData[k])
-        ndx += 1
+
+        if img.shape == imgSize:
+            # Only accept images that are the appropriate size
+            X_data[ndx] = img
+
+            rawEmotion = emoMetaData[k]
+            emotionKey = rawEmotion.lower()
+            emotionNdx = categories[emotionKey]
+            #Y_data = np.append(Y_data, emotionNdx, axis=0)
+            Y_data[ndx] = emotionNdx
+
+            ndx += 1
+
+        if maxData is not None and maxData <= ndx:
+            break
+
+    X_data = X_data.astype('float32')
 
     return X_data, Y_data
 

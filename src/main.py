@@ -193,6 +193,20 @@ def compareLegendAndFiles():
 
 #def imageTransformPipeline():
 
+def to_categorical(y, nb_classes=None):
+    '''Convert class vector (integers from 0 to nb_classes) to binary class matrix, for use with categorical_crossentropy.
+    # Arguments
+        y: class vector to be converted into a matrix
+        nb_classes: total number of classes
+    # Returns
+        A binary matrix representation of the input.
+    '''
+    if not nb_classes:
+        nb_classes = np.max(y)+1
+    Y = np.zeros((len(y), nb_classes))
+    for i in range(len(y)):
+        Y[i, y[i]] = 1.
+    return Y
 
 def main():
     """Our main function."""
@@ -209,7 +223,12 @@ def main():
     #compareFolders()
     #compareLegendAndFiles()
 
-    dwdii_transforms.load_data("C:\Code\Other\\facial_expressions\data\legend.csv", "C:\Code\Other\\facial_expressions\images")
+    X_data, Y_data = dwdii_transforms.load_data("C:\Code\Other\\facial_expressions\data\legend.csv",
+                               "C:\Code\Other\\facial_expressions\images", maxData = 100, verboseFreq = 1)
+
+    print X_data.shape
+
+    to_categorical(Y_data)
 
     print "Done"
 
