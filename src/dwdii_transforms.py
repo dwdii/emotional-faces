@@ -8,8 +8,10 @@
 # An example of each transformation can be found here: https://github.com/dwdii/emotional-faces/tree/master/data/transformed
 #
 __author__ = 'Daniel Dittenhafer'
+import collections
 import csv
 import os
+import random
 import sys
 
 from scipy import misc
@@ -20,16 +22,57 @@ from scipy import misc
 from scipy import ndimage
 import cv2
 
-def load_training_metadata(metadataFile):
+def load_training_metadata(metadataFile, balanceViaRemoval = False):
     # Load the existing CSV so we can skip what we've already worked on
     emoDict = {}
+    emoCounts = collections.defaultdict(int)
     with open(metadataFile, 'r') as csvfile:
         emoCsv = csv.reader(csvfile)
         headers = emoCsv.next()
         for row in emoCsv:
-            emoDict[row[1]] = row[2]
+            emoLower = row[2].lower()
+            emoDict[row[1]] = emoLower
+            emoCounts[emoLower] += 1
+
+            
+    if balanceViaRemoval:
+        balanaceViaRemoval(emoCounts, emoDict)
+
 
     return emoDict
+
+
+def balanaceViaRemoval(emoCounts, emoDict, depth = 0):
+
+    if(depth >= 2):
+        return
+
+    # First get mean items per category
+    sum = len(emoDict)
+    avgE = sum / len(emoCounts)
+
+    # Determine categories for balancing.
+    toBeBalanced = []
+    for e in emoCounts.keys():
+        if emoCounts[e] > avgE * 1.50:
+            toBeBalanced.append(e)
+
+    # iterate over categories to be balanced and do balancing.
+    for b in toBeBalanced:
+        candidatesForRemoval = []
+        for f in emoDict.keys():
+            if emoDict[f] == b:
+                candidatesForRemoval.append(f)
+
+        random.shuffle(candidatesForRemoval)
+        candidatesForRemoval = candidatesForRemoval[avgE:]
+        for c in candidatesForRemoval:
+            del emoDict[c]
+
+        emoCounts[b] = avgE
+
+    balanaceViaRemoval(emoCounts, emoDict, depth + 1)
+
 
 def emotionNumerics():
     emoNdx = {}
@@ -40,6 +83,7 @@ def emotionNumerics():
     emoNdx["surprise"] = 4
     emoNdx["fear"] = 5
     emoNdx["sadness"] = 6
+    emoNdx["contempt"] = 7
     return emoNdx
 
 def numericEmotions():
@@ -54,7 +98,7 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
     """Helper function to load the training/test data"""
 
     # Load the CSV meta data
-    emoMetaData = load_training_metadata(metadataFile)
+    emoMetaData = load_training_metadata(metadataFile, True)
     total = len(emoMetaData)
     ndx = 0.0
 
@@ -91,6 +135,7 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
             break
 
     X_data = X_data.astype('float32')
+    X_data /= 255.0
 
     return X_data, Y_data
 

@@ -223,7 +223,10 @@ def main():
     #compareFolders()
     #compareLegendAndFiles()
 
-    X_data, Y_data = dwdii_transforms.load_data("C:\Code\Other\\facial_expressions\data\legend.csv",
+    dataFile = "C:\Code\Other\\facial_expressions\data\legend.csv"
+    dwdii_transforms.load_training_metadata(dataFile, True)
+
+    X_data, Y_data = dwdii_transforms.load_data(dataFile,
                                "C:\Code\Other\\facial_expressions\images", maxData = 100, verboseFreq = 1)
 
     print X_data.shape

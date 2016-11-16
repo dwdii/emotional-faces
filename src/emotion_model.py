@@ -135,7 +135,8 @@ def emotion_model_v4(outputClasses, verbose=False):
     nb_filters_1 = 32
     nb_filters_2 = 64
     nb_filters_3 = 128
-    nb_filters_4 = 128
+    nb_filters_4 = 256
+    nb_filters_5 = 256
     dropout = 0.25
     #nb_classes = 10
     start_time = time.time()
@@ -158,7 +159,7 @@ def emotion_model_v4(outputClasses, verbose=False):
     model.add(MaxPooling2D(strides=(2, 2)))
 
     #model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(nb_filters_4, nb_conv, nb_conv, activation="relu"))
+    model.add(Convolution2D(nb_filters_5, nb_conv, nb_conv, activation="relu"))
     model.add(MaxPooling2D(strides=(2, 2)))
     
     model.add(Flatten())
@@ -174,6 +175,41 @@ def emotion_model_v4(outputClasses, verbose=False):
                   metrics=['accuracy'])
     print 'Model compiled in {0} seconds'.format(time.time() - start_time)
     return model       
+    
+def emotion_model_v5(outputClasses, verbose=False):
+    nb_pool = 2
+    nb_conv = 20
+    nb_filters_1 = 32
+    nb_filters_2 = 64
+    nb_filters_3 = 128
+    nb_filters_4 = 256
+    nb_filters_5 = 512
+    dropout = 0.25
+    #nb_classes = 10
+    start_time = time.time()
+    print 'Compiling Model ... '
+    model = Sequential()
+    model.add(ZeroPadding2D((10, 10), input_shape=(1, 350, 350), ))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(strides=(2, 2)))
+
+    model.add(ZeroPadding2D((10, 10)))
+    model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(strides=(2, 2)))
+ 
+    model.add(Flatten())
+    #model.add(Dropout(0.25))
+    #model.add(Dense(nb_filters_5, activation="relu"))
+    model.add(Dense(outputClasses, activation="softmax"))
+
+    if verbose:
+        print (model.summary())
+
+    # rms = RMSprop()
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta',
+                  metrics=['accuracy'])
+    print 'Model compiled in {0} seconds'.format(time.time() - start_time)
+    return model           
 
 class LossHistory(cb.Callback):
     def on_train_begin(self, logs={}):
