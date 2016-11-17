@@ -180,21 +180,137 @@ def emotion_model_v5(outputClasses, verbose=False):
     nb_pool = 2
     nb_conv = 20
     nb_filters_1 = 32
-    nb_filters_2 = 64
-    nb_filters_3 = 128
-    nb_filters_4 = 256
-    nb_filters_5 = 512
-    dropout = 0.25
+    #nb_filters_2 = 64
+    #nb_filters_3 = 128
+    #nb_filters_4 = 256
+    #nb_filters_5 = 512
+    #dropout = 0.25
     #nb_classes = 10
     start_time = time.time()
     print 'Compiling Model ... '
     model = Sequential()
-    model.add(ZeroPadding2D((10, 10), input_shape=(1, 350, 350), ))
+    model.add(ZeroPadding2D((5, 5), input_shape=(1, 350, 350), ))
     model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu"))
     model.add(MaxPooling2D(strides=(2, 2)))
 
-    model.add(ZeroPadding2D((10, 10)))
-    model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    #model.add(ZeroPadding2D((10, 10)))
+    #model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    #model.add(MaxPooling2D(strides=(2, 2)))
+ 
+    model.add(Flatten())
+    #model.add(Dropout(0.25))
+    #model.add(Dense(nb_filters_5, activation="relu"))
+    model.add(Dense(outputClasses, activation="softmax"))
+
+    if verbose:
+        print (model.summary())
+
+    # rms = RMSprop()
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta',
+                  metrics=['accuracy'])
+    print 'Model compiled in {0} seconds'.format(time.time() - start_time)
+    return model    
+
+def emotion_model_v6(outputClasses, verbose=False):
+    nb_pool = 2
+    nb_conv = 30 # up from 20 to 30
+    nb_filters_1 = 32
+    start_time = time.time()
+    print 'Compiling Model ... '
+    model = Sequential()
+    model.add(ZeroPadding2D((5, 5), input_shape=(1, 350, 350), ))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(strides=(2, 2)))
+
+    #model.add(ZeroPadding2D((10, 10)))
+    #model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    #model.add(MaxPooling2D(strides=(2, 2)))
+ 
+    model.add(Flatten())
+    #model.add(Dropout(0.25))
+    #model.add(Dense(nb_filters_5, activation="relu"))
+    model.add(Dense(outputClasses, activation="softmax"))
+
+    if verbose:
+        print (model.summary())
+
+    # rms = RMSprop()
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta',
+                  metrics=['accuracy'])
+    print 'Model compiled in {0} seconds'.format(time.time() - start_time)
+    return model       
+    
+def emotion_model_v7(outputClasses, verbose=False):
+    nb_pool = 2
+    nb_conv = 40 # up from 30 to 40
+    nb_filters_1 = 32
+    start_time = time.time()
+    print 'Compiling Model ... '
+    model = Sequential()
+    model.add(ZeroPadding2D((5, 5), input_shape=(1, 350, 350), ))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(strides=(2, 2)))
+
+    #model.add(ZeroPadding2D((10, 10)))
+    #model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    #model.add(MaxPooling2D(strides=(2, 2)))
+ 
+    model.add(Flatten())
+    #model.add(Dropout(0.25))
+    #model.add(Dense(nb_filters_5, activation="relu"))
+    model.add(Dense(outputClasses, activation="softmax"))
+
+    if verbose:
+        print (model.summary())
+
+    # rms = RMSprop()
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta',
+                  metrics=['accuracy'])
+    print 'Model compiled in {0} seconds'.format(time.time() - start_time)
+    return model     
+
+def emotion_model_v8(outputClasses, verbose=False):
+    nb_pool = 2
+    nb_conv = 30 #  Back to 30 from 40
+    nb_filters_1 = 32
+    start_time = time.time()
+    print 'Compiling Model ... '
+    model = Sequential()
+    model.add(ZeroPadding2D((5, 5), input_shape=(1, 350, 350), ))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(strides=(5, 5))) # 5,5 from 2,2
+
+    #model.add(ZeroPadding2D((10, 10)))
+    #model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    #model.add(MaxPooling2D(strides=(2, 2)))
+ 
+    model.add(Flatten())
+    #model.add(Dropout(0.25))
+    #model.add(Dense(nb_filters_5, activation="relu"))
+    model.add(Dense(outputClasses, activation="softmax"))
+
+    if verbose:
+        print (model.summary())
+
+    # rms = RMSprop()
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta',
+                  metrics=['accuracy'])
+    print 'Model compiled in {0} seconds'.format(time.time() - start_time)
+    return model     
+
+def emotion_model_v9(outputClasses, verbose=False):
+    nb_pool = 2
+    nb_conv = 30 # up from 20 to 30
+    nb_filters_1 = 32
+    start_time = time.time()
+    print 'Compiling Model ... '
+    model = Sequential()
+    model.add(ZeroPadding2D((5, 5), input_shape=(1, 350, 350), ))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu"))
+    #model.add(MaxPooling2D(strides=(2, 2)))
+
+    model.add(ZeroPadding2D((5, 5)))
+    model.add(Convolution2D(32, nb_conv, nb_conv, activation="relu"))
     model.add(MaxPooling2D(strides=(2, 2)))
  
     model.add(Flatten())
@@ -209,7 +325,7 @@ def emotion_model_v5(outputClasses, verbose=False):
     model.compile(loss='categorical_crossentropy', optimizer='adadelta',
                   metrics=['accuracy'])
     print 'Model compiled in {0} seconds'.format(time.time() - start_time)
-    return model           
+    return model       
 
 class LossHistory(cb.Callback):
     def on_train_begin(self, logs={}):

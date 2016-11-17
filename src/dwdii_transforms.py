@@ -117,7 +117,7 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
             msg = "{0:f}: {1}\r\n".format(ndx/total, k)
             sys.stdout.writelines(msg )
 
-        img = misc.imread(filepath)
+        img = misc.imread(filepath, flatten = False) # flatten = True? 
 
         if img.shape == imgSize:
             # Only accept images that are the appropriate size
@@ -126,7 +126,7 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
             rawEmotion = emoMetaData[k]
             emotionKey = rawEmotion.lower()
             emotionNdx = categories[emotionKey]
-            #Y_data = np.append(Y_data, emotionNdx, axis=0)
+            
             Y_data[ndx] = emotionNdx
 
             ndx += 1
