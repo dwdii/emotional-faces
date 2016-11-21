@@ -94,7 +94,7 @@ def numericEmotions():
 
     return ndxEmo
 
-def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=True, verboseFreq = 200, maxData = None, imgSize = (350, 350)):
+def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=True, verboseFreq = 200, maxData = None, imgSize = (350, 350), imgResize = None):
     """Helper function to load the training/test data"""
 
     # Load the CSV meta data
@@ -102,11 +102,15 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
     total = len(emoMetaData)
     ndx = 0.0
 
+    x, y = imgSize
+    if imgResize is not None:
+        x, y = imgResize
+        
     if maxData is not None:
         total = maxData
 
     # Allocate containers for the data
-    X_data = np.zeros([total, 350, 350])
+    X_data = np.zeros([total, x, y])
     Y_data = np.zeros([total, 1], dtype=np.int8)
 
     # load the image bits based on what's in the meta data
@@ -119,8 +123,13 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
 
         img = misc.imread(filepath, flatten = False) # flatten = True? 
 
+        # Only accept images that are the appropriate size
         if img.shape == imgSize:
-            # Only accept images that are the appropriate size
+            
+            # Resize if desired.
+            if imgResize is not None:
+                img = misc.imresize(img, imgResize)
+                
             X_data[ndx] = img
 
             rawEmotion = emoMetaData[k]
@@ -130,6 +139,8 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
             Y_data[ndx] = emotionNdx
 
             ndx += 1
+            
+
 
         if maxData is not None and maxData <= ndx:
             break
@@ -138,6 +149,29 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
     X_data /= 255.0
 
     return X_data, Y_data
+    
+def trainingTestSplit(xData, yData, ratio, verbose=False):
+    
+    # Split the data into Training and Test sets
+    dataLen = xData.shape[0]
+    trainNdx = int(dataLen * ratio)
+    if verbose:
+        print trainNdx
+        
+    X_train, X_test = np.split(xData, [trainNdx])
+    Y_train, Y_test = np.split(yData, [trainNdx])
+    
+    X_train = X_train.reshape(X_train.shape[0], 1, xData.shape[1], xData.shape[2])
+    X_test = X_test.reshape(X_test.shape[0], 1, xData.shape[1], xData.shape[2])    
+    
+    if verbose:
+        print "X_train: " + str(X_train.shape)
+        print "X_test: " + str( X_test.shape)
+
+        print "Y_train: " + str( Y_train.shape)
+        print "Y_test: " + str(  Y_test.shape) 
+    
+    return X_train, X_test, Y_train, Y_test
 
 def saveImg(destinationPath, prefix, filepath, imgData):
     """Helper function to enable a common way of saving the transformed images."""
