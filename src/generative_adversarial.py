@@ -98,8 +98,23 @@ def plotGenerative(ndx, generator, n_ex=16,dim=(4,4), figsize=(10,10) ):
     plt.tight_layout()
     #plt.show()  
     fileName = "Gan-{0:03d}.png".format(ndx)
-    fig.savefig(fileName, dpi=fig.dpi)
     
+    # Retry the saving because the jupyter + docker volume mount don't play well.
+    saved = False
+    retry = 0
+    while not saved:
+        try:
+            fig.savefig(fileName, dpi=fig.dpi)
+            plt.close(fig)
+            saved = True
+        except: 
+            print(ndx, "Error saving in plotGenerative, retrying: ", sys.exc_info()[0])
+            retry += 1
+            saved = False
+            if retry > 5:
+                plt.close(fig)
+                break
+            
 def makeTrainable(net, val):
     net.trainable = val
     for l in net.layers:
@@ -126,7 +141,7 @@ def train_for_n(X_train, GAN, generator, discriminator, nb_epoch=5000, plt_frq=2
         y[0:BATCH_SIZE,1] = 1
         y[BATCH_SIZE:,0] = 1
         
-        #make_trainable(discriminator,True)
+        makeTrainable(discriminator,True)
         d_loss  = discriminator.train_on_batch(X,y)
         #losses["d"].append(d_loss)
     
@@ -135,7 +150,7 @@ def train_for_n(X_train, GAN, generator, discriminator, nb_epoch=5000, plt_frq=2
         y2 = np.zeros([BATCH_SIZE,2])
         y2[:,1] = 1
         
-        #make_trainable(discriminator,False)
+        makeTrainable(discriminator,False)
         g_loss = GAN.train_on_batch(noise_tr, y2 )
         #losses["g"].append(g_loss)
         

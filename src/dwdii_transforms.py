@@ -94,7 +94,7 @@ def numericEmotions():
 
     return ndxEmo
 
-def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=True, verboseFreq = 200, maxData = None, imgSize = (350, 350), imgResize = None):
+def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=True, verboseFreq = 200, maxData = None, imgSize = (350, 350), imgResize = None, theseEmotions = None):
     """Helper function to load the training/test data"""
 
     # Load the CSV meta data
@@ -115,36 +115,41 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
 
     # load the image bits based on what's in the meta data
     for k in emoMetaData.keys():
-        filepath = os.path.join(imagesPath, k)
+        
+        if theseEmotions is None or emoMetaData[k] in theseEmotions:
 
-        if verbose and ndx % verboseFreq == 0:
-            msg = "{0:f}: {1}\r\n".format(ndx/total, k)
-            sys.stdout.writelines(msg )
-
-        img = misc.imread(filepath, flatten = False) # flatten = True? 
-
-        # Only accept images that are the appropriate size
-        if img.shape == imgSize:
+            # Verbose status
+            if verbose and ndx % verboseFreq == 0:
+                msg = "{0:f}: {1}\r\n".format(ndx/total, k)
+                sys.stdout.writelines(msg )
             
-            # Resize if desired.
-            if imgResize is not None:
-                img = misc.imresize(img, imgResize)
+            # Load the file
+            filepath = os.path.join(imagesPath, k)
+            img = misc.imread(filepath, flatten = False) # flatten = True? 
+
+            # Only accept images that are the appropriate size
+            if img.shape == imgSize:
                 
-            X_data[ndx] = img
+                # Resize if desired.
+                if imgResize is not None:
+                    img = misc.imresize(img, imgResize)
+                    
+                X_data[ndx] = img
 
-            rawEmotion = emoMetaData[k]
-            emotionKey = rawEmotion.lower()
-            emotionNdx = categories[emotionKey]
-            
-            Y_data[ndx] = emotionNdx
+                rawEmotion = emoMetaData[k]
+                emotionKey = rawEmotion.lower()
+                emotionNdx = categories[emotionKey]
+                
+                Y_data[ndx] = emotionNdx
 
-            ndx += 1
-            
-
-
+                ndx += 1
+                
         if maxData is not None and maxData <= ndx:
             break
-
+            
+    Y_data = Y_data[:ndx]
+    X_data = X_data[:ndx]
+    
     X_data = X_data.astype('float32')
     X_data /= 255.0
 
