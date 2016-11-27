@@ -130,7 +130,6 @@ def emotion_model_v3(outputClasses, verbose=False):
     return model
 
 def emotion_model_v3_1(outputClasses, verbose=False):
-    """https://www.kaggle.com/somshubramajumdar/digit-recognizer/deep-convolutional-network-using-keras"""
     nb_pool = 2
     nb_conv = 3
     nb_filters_1 = 32
@@ -143,7 +142,7 @@ def emotion_model_v3_1(outputClasses, verbose=False):
     print 'Compiling Model ... '
     model = Sequential()
     #model.add(ZeroPadding2D((1, 1), input_shape=(1, 350, 350), ))
-    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu"))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu", input_shape=(1, 350, 350)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
     #model.add(ZeroPadding2D((1, 1)))
@@ -160,6 +159,48 @@ def emotion_model_v3_1(outputClasses, verbose=False):
     
     model.add(Flatten())
     model.add(Dropout(0.2))
+    model.add(Dense(64, activation="relu"))
+    model.add(Dense(outputClasses, activation="softmax"))
+
+    if verbose:
+        print (model.summary())
+
+    # rms = RMSprop()
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta',
+                  metrics=['accuracy'])
+    print 'Model compiled in {0} seconds'.format(time.time() - start_time)
+    return model    
+
+def emotion_model_v3_2(outputClasses, verbose=False):
+    nb_pool = 2
+    nb_conv = 3
+    nb_filters_1 = 32
+    nb_filters_2 = 32
+    nb_filters_3 = 64
+    nb_filters_4 = 128
+    dropout = 0.25
+    #nb_classes = 10
+    start_time = time.time()
+    print 'Compiling Model ... '
+    model = Sequential()
+    #model.add(ZeroPadding2D((1, 1), input_shape=(1, 350, 350), ))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu", input_shape=(1, 350, 350)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_3, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))    
+
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_4, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Flatten())
+    model.add(Dropout(0.3))
     model.add(Dense(64, activation="relu"))
     model.add(Dense(outputClasses, activation="softmax"))
 
