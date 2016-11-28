@@ -22,7 +22,7 @@ from scipy import misc
 from scipy import ndimage
 import cv2
 
-def load_training_metadata(metadataFile, balanceViaRemoval = False):
+def load_training_metadata(metadataFile, balanceViaRemoval = False, verbose=False):
     # Load the existing CSV so we can skip what we've already worked on
     emoDict = {}
     emoCounts = collections.defaultdict(int)
@@ -34,11 +34,22 @@ def load_training_metadata(metadataFile, balanceViaRemoval = False):
             emoDict[row[1]] = emoLower
             emoCounts[emoLower] += 1
 
+    if verbose:
+        print "Before Balancing"
+        print "----------------"
+        for e in emoCounts:
+            print e, emoCounts[e]
             
     if balanceViaRemoval:
         balanaceViaRemoval(emoCounts, emoDict)
 
-
+    if verbose:
+        print
+        print "After Balancing"
+        print "----------------"
+        for e in emoCounts:
+            print e, emoCounts[e]
+        
     return emoDict
 
 

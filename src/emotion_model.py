@@ -127,7 +127,91 @@ def emotion_model_v3(outputClasses, verbose=False):
     model.compile(loss='categorical_crossentropy', optimizer='adadelta',
                   metrics=['accuracy'])
     print 'Model compiled in {0} seconds'.format(time.time() - start_time)
-    return model        
+    return model
+
+def emotion_model_v3_1(outputClasses, verbose=False):
+    nb_pool = 2
+    nb_conv = 3
+    nb_filters_1 = 32
+    nb_filters_2 = 64
+    nb_filters_3 = 128
+    nb_filters_4 = 128
+    dropout = 0.25
+    #nb_classes = 10
+    start_time = time.time()
+    print 'Compiling Model ... '
+    model = Sequential()
+    #model.add(ZeroPadding2D((1, 1), input_shape=(1, 350, 350), ))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu", input_shape=(1, 350, 350)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_3, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))    
+
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_4, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Flatten())
+    model.add(Dropout(0.2))
+    model.add(Dense(64, activation="relu"))
+    model.add(Dense(outputClasses, activation="softmax"))
+
+    if verbose:
+        print (model.summary())
+
+    # rms = RMSprop()
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta',
+                  metrics=['accuracy'])
+    print 'Model compiled in {0} seconds'.format(time.time() - start_time)
+    return model    
+
+def emotion_model_v3_2(outputClasses, verbose=False):
+    nb_pool = 2
+    nb_conv = 3
+    nb_filters_1 = 32
+    nb_filters_2 = 32
+    nb_filters_3 = 64
+    nb_filters_4 = 128
+    dropout = 0.25
+    #nb_classes = 10
+    start_time = time.time()
+    print 'Compiling Model ... '
+    model = Sequential()
+    #model.add(ZeroPadding2D((1, 1), input_shape=(1, 350, 350), ))
+    model.add(Convolution2D(nb_filters_1, nb_conv, nb_conv, activation="relu", input_shape=(1, 350, 350)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_2, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_3, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))    
+
+    #model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(nb_filters_4, nb_conv, nb_conv, activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Flatten())
+    model.add(Dropout(0.3))
+    model.add(Dense(64, activation="relu"))
+    model.add(Dense(outputClasses, activation="softmax"))
+
+    if verbose:
+        print (model.summary())
+
+    # rms = RMSprop()
+    model.compile(loss='categorical_crossentropy', optimizer='adadelta',
+                  metrics=['accuracy'])
+    print 'Model compiled in {0} seconds'.format(time.time() - start_time)
+    return model    
     
 def emotion_model_v4(outputClasses, verbose=False):
     nb_pool = 2
@@ -327,6 +411,36 @@ def emotion_model_v9(outputClasses, verbose=False):
     print 'Model compiled in {0} seconds'.format(time.time() - start_time)
     return model       
 
+def cnn_model_jhamski(outputClasses, input_shape=(3, 150, 150), verbose=False):
+    model = Sequential()
+    model.add(Convolution2D(32, 3, 3, input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(32, 3, 3))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(64, 3, 3))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Flatten())
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(outputClasses))
+    model.add(Activation('softmax'))
+    
+    if verbose:
+        print (model.summary())
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='rmsprop',
+                  metrics=['accuracy'])
+
+    return model
+
 class LossHistory(cb.Callback):
     def on_train_begin(self, logs={}):
         self.losses = []
@@ -335,7 +449,7 @@ class LossHistory(cb.Callback):
         batch_loss = logs.get('loss')
         self.losses.append(batch_loss)
 
-def run_network(data, model, epochs=20, batch=256):
+def run_network(data, model, epochs=20, batch=256, verbosity=2):
     """
 
     :param data: X_train, X_test, y_train, y_test
@@ -358,7 +472,7 @@ def run_network(data, model, epochs=20, batch=256):
         print 'Training model...'
         model.fit(X_train, y_trainC, nb_epoch=epochs, batch_size=batch,
                   callbacks=[history],
-                  validation_data=(X_test, y_testC), verbose=2)
+                  validation_data=(X_test, y_testC), verbose=verbosity)
 
         print "Training duration : {0}".format(time.time() - start_time)
         score = model.evaluate(X_test, y_testC, batch_size=16, verbose=0)
