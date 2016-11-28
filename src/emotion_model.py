@@ -411,6 +411,36 @@ def emotion_model_v9(outputClasses, verbose=False):
     print 'Model compiled in {0} seconds'.format(time.time() - start_time)
     return model       
 
+def cnn_model_jhamski(outputClasses, input_shape=(3, 150, 150), verbose=False):
+    model = Sequential()
+    model.add(Convolution2D(32, 3, 3, input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(32, 3, 3))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(64, 3, 3))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Flatten())
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(outputClasses))
+    model.add(Activation('softmax'))
+    
+    if verbose:
+        print (model.summary())
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='rmsprop',
+                  metrics=['accuracy'])
+
+    return model
+
 class LossHistory(cb.Callback):
     def on_train_begin(self, logs={}):
         self.losses = []
@@ -419,7 +449,7 @@ class LossHistory(cb.Callback):
         batch_loss = logs.get('loss')
         self.losses.append(batch_loss)
 
-def run_network(data, model, epochs=20, batch=256):
+def run_network(data, model, epochs=20, batch=256, verbosity=2):
     """
 
     :param data: X_train, X_test, y_train, y_test
@@ -442,7 +472,7 @@ def run_network(data, model, epochs=20, batch=256):
         print 'Training model...'
         model.fit(X_train, y_trainC, nb_epoch=epochs, batch_size=batch,
                   callbacks=[history],
-                  validation_data=(X_test, y_testC), verbose=2)
+                  validation_data=(X_test, y_testC), verbose=verbosity)
 
         print "Training duration : {0}".format(time.time() - start_time)
         score = model.evaluate(X_test, y_testC, batch_size=16, verbose=0)
