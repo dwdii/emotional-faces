@@ -198,7 +198,7 @@ def saveImg(destinationPath, prefix, filepath, imgData):
 def reflectY(img):
 
     tx = [[1, 0], [0, -1]]
-    offset = [0, 350]
+    offset = [0, img.shape[0]]
     img2 = ndimage.interpolation.affine_transform(img, tx, offset)
 
     return img2

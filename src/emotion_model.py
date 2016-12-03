@@ -505,6 +505,74 @@ def emotion_model_jh_v3(outputClasses, input_shape=(3, 150, 150), verbose=False)
 
     return model
 
+def emotion_model_jh_v4(outputClasses, input_shape=(3, 150, 150), verbose=False):
+    model = Sequential()
+    model.add(Convolution2D(32, 8, 8, input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(32, 4, 4))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(64, 2, 2))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Convolution2D(64, 1, 1))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))    
+
+    model.add(Flatten())
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(outputClasses))
+    model.add(Activation('softmax'))
+    
+    if verbose:
+        print (model.summary())
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='rmsprop',
+                  metrics=['accuracy'])
+
+    return model
+
+def emotion_model_jh_v5(outputClasses, input_shape=(3, 150, 150), verbose=False):
+    model = Sequential()
+    model.add(Convolution2D(32, 8, 8, input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(32, 5, 5))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(64, 3, 3))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Convolution2D(64, 2, 2))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))    
+
+    model.add(Flatten())
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    #model.add(Dropout(0.4))
+    model.add(Dense(outputClasses))
+    model.add(Activation('softmax'))
+    
+    if verbose:
+        print (model.summary())
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='rmsprop',
+                  metrics=['accuracy'])
+
+    return model
+
 class LossHistory(cb.Callback):
     def on_train_begin(self, logs={}):
         self.losses = []
