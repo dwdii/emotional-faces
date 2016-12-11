@@ -136,7 +136,7 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
             
             # Load the file
             filepath = os.path.join(imagesPath, k)
-            img = misc.imread(filepath, flatten = False) # flatten = True? 
+            img = misc.imread(filepath, flatten = True) # flatten = True? 
 
             # Only accept images that are the appropriate size
             if img.shape == imgSize:
