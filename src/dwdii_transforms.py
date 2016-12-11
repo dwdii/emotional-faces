@@ -165,6 +165,57 @@ def load_data(metadataFile, imagesPath, categories = emotionNumerics(), verbose=
     X_data /= 255.0
 
     return X_data, Y_data
+
+def load_test_data(imagesPath, verbose=True, verboseFreq = 200, maxData = None, imgSize = (350, 350), imgResize = None):
+    """Helper function to load the kaggle test data"""
+    
+    ndx = 0.0
+
+    x, y = imgSize
+    if imgResize is not None:
+        x, y = imgResize
+        
+    if maxData is not None:
+        total = maxData
+    else:
+        fileList = os.listdir(imagesPath)
+        total = len(fileList)
+
+    # Allocate a container for the data
+    X_data = np.zeros([total, x, y])
+    
+    # load the image bits based on what's in the meta data
+    for k in fileList:
+        
+        # Verbose status
+        if verbose and ndx % verboseFreq == 0:
+            msg = "{0:f}: {1}\r\n".format(ndx/total, k)
+            sys.stdout.writelines(msg)
+            
+        # Load the file
+        filepath = os.path.join(imagesPath, k)
+        img = misc.imread(filepath, flatten = True)
+
+
+        # Resize if desired.
+        if imgResize is not None:
+            img = misc.imresize(img, imgResize)
+
+        X_data[ndx] = img
+
+        ndx += 1
+                
+        # If not loading all, then break when we reach "max"
+        if maxData is not None and maxData <= ndx:
+            break
+            
+    X_data = X_data[:ndx]
+    
+    # Ensure correct data type and scale to 0-1
+    X_data = X_data.astype('float32')
+    X_data /= 255.0
+
+    return X_data, fileList
     
 def trainingTestSplit(xData, yData, ratio, verbose=False):
     
