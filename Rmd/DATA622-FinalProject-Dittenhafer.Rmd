@@ -1,0 +1,122 @@
+---
+title: "Emotion Recognition Neural Network"
+author: "Daniel Dittenhafer"
+date: "December 13, 2016"
+output:
+  pdf_document:
+    number_sections: yes
+  html_document: default
+geometry: margin=0.75in
+subtitle: 'Final Project Paper for DATA622: Machine Learning & Big Data'
+documentclass: article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+library(knitr)
+library(knitcitations)
+library(RefManageR)
+
+cleanbib()
+
+cite_options(style="markdown")
+
+msEmotionApi <- bibentry(bibtype="Misc",
+                         author=person(family="Microsoft Corporation"),
+                         publisher="Microsoft Corporation",
+                         title="Emotion API",
+                         year=2016,
+                         month="December",
+                         url="https://www.microsoft.com/cognitive-services/en-us/emotion-api")
+
+labeledFaces <- bibentry(bibtype="TechReport",
+                         author=personList(person(family="Huang", first="Gary"),
+                                           person(family="Ramesh", first="Manu "),
+                                           person(family="Berg", first="Tamara"),
+                                           person(family="Learned-Miller", first="Erik")),
+                         institution ="University of Massachusetts, Amherst",
+                         title="Labeled Faces in the Wild: A Database for Studying 
+                  Face Recognition in Unconstrained Environments",
+                         year=2007,
+                         month="October",
+                         url="http://vis-www.cs.umass.edu/lfw/")
+  
+transformImg <- bibentry(bibtype="Misc",
+                         author=person(family="Joshi", first="Prateek"),
+                         publisher="Packt Publishing Limited",
+                         title="OpenCV with Python By Example",
+                         year=2015,
+                         month="September",
+                         url="https://www.packtpub.com/mapt/book/application-development/9781785283932/2/ch02lvl1sec23/Embossing")
+
+roweFaceExpress <- bibentry(bibtype="Misc",
+                         author=person(family="Rowe", first="Brian"),
+                         title="facial_expressions",
+                         year=2016,
+                         month="December",
+                         url="https://github.com/muxspace/facial_expressions")
+```
+
+Submit your final project, which includes the source code of your best model, plus a short (3-4 page) paper summarizing your work. Provide:
+
+* an overview of the problem;
+* why it's challenging;
+* what techniques you used;
+* comparison of performance;
+* generalizable lessons learned/takeaways.
+
+
+# Overview
+
+As part of the course requirements for Machine Learning & Big Data (DATA622), the problem of developing a machine learning model capable of classifying human face images into various emotions was presented. Specifically, the goal was to design and train a neural network to recognize the following 8 emotions and emit a probability of each of the emotion classes given the input 2 dimensional image. 
+
+1. anger
+2. contempt
+3. disgust
+4. fear
+5. happiness
+6. neutral
+7. sadness
+8. surprise
+
+Although this problem is not new to machine learning and solutions already exist `r citep(msEmotionApi)`, the complexities of the mathematics alone are challenging. This, combined with the application of a variety of neural network techniques, make for many unique solutions. 
+
+# Techniques
+
+The DATA622 class as a whole, under Professor Rowe's guidance, agreed to a general approach using the _Labeled Faces in the Wild_ face database as a basis for training data `r citep(labeledFaces)`. We then labeled each of the included images using the Microsoft Emotion API. This was considered the "gold standard" for our training purposes and shared amongst the class as well as publicly in the [facial_expressions repository on GitHub](https://github.com/muxspace/facial_expressions) `r citep(roweFaceExpress)`.
+
+In order to increase the size of our training and test data sets as well as apply regularization via data, each member of the class created ten image transformations using a variety of APIs and shared the transformations with the class as options for each of us when augmenting our data sets. The following code shows an example of a transformation applied during training `r citep(transformImg)`:
+
+```{python, eval=FALSE}
+def cvBlurMotion1(img):
+    
+    size = 15
+    kernel_motion_blur = np.zeros((size, size))
+    kernel_motion_blur[int((size - 1) / 2), :] = np.ones(size)
+    kernel_motion_blur = kernel_motion_blur / size
+
+    img2 = cv2.filter2D(img, -1, kernel_motion_blur)
+    return img2
+```
+
+The function, above, along with all code developed as part of this project can be found in the [emotional-faces repository on GitHub](https://github.com/dwdii/emotional-faces).
+
+# Performance
+
+TBD
+
+# Conclusions
+
+TBD
+
+
+# References
+
+```{r, results='asis', echo=FALSE}
+BibOptions(style="html", bib.style="authortitle")
+bibliography()
+```
