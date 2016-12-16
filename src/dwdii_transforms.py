@@ -245,6 +245,8 @@ def saveImg(destinationPath, prefix, filepath, imgData):
     fileName = os.path.basename(filepath)
     destFile = destinationPath + "\\" + prefix + "-" + fileName
     misc.imsave(destFile, imgData)
+    
+
 
 def reflectY(img):
 

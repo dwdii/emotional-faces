@@ -10,9 +10,29 @@ from keras.models import Sequential
 from keras.layers.convolutional import Convolution2D
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers import MaxPooling2D, ZeroPadding2D
+from keras.preprocessing.image import ImageDataGenerator
 
 
+def imageDataGenTransform(img, y):
+    # Using keras ImageDataGenerator to generate random images
+    datagen = ImageDataGenerator(
+        featurewise_std_normalization=False,
+        rotation_range = 20,
+        width_shift_range = 0.10,
+        height_shift_range = 0.10,
+        shear_range = 0.1,
+        zoom_range = 0.1,
+        horizontal_flip = True)
+    
+        
+    #x = img_to_array(img)
+    x = img.reshape(1, 1, img.shape[0], img.shape[1])
+    j = 0
+    for imgT, yT in datagen.flow(x, y, batch_size = 1, save_to_dir = None):
+        img2 = imgT
+        break
 
+    return img2
 
 def emotion_model_v1(outputClasses, verbose=False):
     """https://www.kaggle.com/somshubramajumdar/digit-recognizer/deep-convolutional-network-using-keras"""
