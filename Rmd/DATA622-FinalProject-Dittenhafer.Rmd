@@ -59,6 +59,30 @@ roweFaceExpress <- bibentry(bibtype="Misc",
                          year=2016,
                          month="December",
                          url="https://github.com/muxspace/facial_expressions")
+
+kaggleDigitModel <- bibentry(bibtype="Misc",
+                         author=person(family="Majumdar", first="Somshubra"),
+                         title="Deep Convolutional Network using Keras",
+                         year=2016,
+                         month="April",
+                         url="https://www.kaggle.com/somshubramajumdar/digit-recognizer/deep-convolutional-network-using-keras")
+
+tenMisconceptions <- bibentry(bibtype="Misc",
+                         author=person(family="Reid", first="Stuart"),
+                         title="10 misconceptions about Neural Networks",
+                         year=2014,
+                         month="May",
+                         url="http://www.turingfinance.com/misconceptions-about-neural-networks/#algo")
+  
+goodfellowDeepLrn <- bibentry(bibtype="Misc",
+                         author=personList(person(family="Goodfellow", first="Ian"),
+                                           person(family="Bengio", first="Yoshua"),
+                                           person(family="Courville", first="Aaron")),
+                         title="Deep Learning",
+                         year=2016,
+                         month="September",
+                         url="http://deeplearningbook.org")
+   
 ```
 
 Submit your final project, which includes the source code of your best model, plus a short (3-4 page) paper summarizing your work. Provide:
@@ -72,7 +96,7 @@ Submit your final project, which includes the source code of your best model, pl
 
 # Overview
 
-As part of the course requirements for Machine Learning & Big Data (DATA622), the problem of developing a machine learning model capable of classifying human face images into various emotions was presented. Specifically, the goal was to design and train a neural network to recognize the following 8 emotions and emit a probability of each of the emotion classes given the input 2 dimensional image. 
+As part of the course requirements for Machine Learning & Big Data (DATA622), the problem of developing a machine learning model capable of classifying human face images into various emotions was presented. Specifically, the goal was to design and train a neural network to recognize the following 8 emotions and emit a probability of each of the emotion classes given the input 2 dimensional (2D) image. 
 
 1. anger
 2. contempt
@@ -83,7 +107,7 @@ As part of the course requirements for Machine Learning & Big Data (DATA622), th
 7. sadness
 8. surprise
 
-Although this problem is not new to machine learning and solutions already exist `r citep(msEmotionApi)`, the complexities of the mathematics alone are challenging. This, combined with the application of a variety of neural network techniques, make for many unique solutions. 
+Although this problem is not new to machine learning and solutions already exist `r citep(msEmotionApi)`, the complexities of the mathematics alone are challenging. This, combined with the application of a variety of neural network techniques, make for many unique solutions. Much of the academic theory for the neural network was derived from the text by Ian Goodfellow, et al, ___Deep Learning___ `r citep(goodfellowDeepLrn)`.
 
 # Techniques
 
@@ -104,6 +128,56 @@ def cvBlurMotion1(img):
 ```
 
 The function, above, along with all code developed as part of this project can be found in the [emotional-faces repository on GitHub](https://github.com/dwdii/emotional-faces).
+
+The initial model was based on a model shared on Kaggle as part of the digit recognition competition `r citep(kaggleDigitModel)`. In general, it used 3 convolutional layers plus 2 dense layers with rectified linear unit activation and a softmax final activation for the class probablities. This initial model was adjusted in minor ways, with followup training and validation to measure performance.
+
+The final model was very similar to the initial model in many ways. It still relied on convolutional layers at the input and hidden layers with 2 dense layers on the end, but had a forth convolutional hidden layer internally. 
+
+```{python, eval=FALSE}
+def emotion_model_jh_v5(outputClasses, input_shape=(3, 150, 150), verbose=False):
+    model = Sequential()
+    model.add(Convolution2D(32, 8, 8, input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(32, 5, 5))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(64, 3, 3))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Convolution2D(64, 2, 2))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))    
+
+    model.add(Flatten())
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    #model.add(Dropout(0.4))
+    model.add(Dense(outputClasses))
+    model.add(Activation('softmax'))
+    
+    if verbose:
+        print (model.summary())
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='rmsprop',
+                  metrics=['accuracy'])
+
+    return model
+```
+
+As you can see, the structure is approaching "deep" with the 4 hidden layers. Importantly, the convolutional window begins larger (8x8) on the 150x150 image, and gradually narrows through the remaining 3 convolutional layers. Binary cross entropy was used for the loss function, and Root Mean Square Propagation (RMSProp) was used for the optimization. RMSProp was used for its ability to consistently descend toward the minimum though admittedly not the fastest to arrive `r citep(tenMisconceptions)`. Kind of a tortise approach in a tortise vs hare annalogy.  
+
+Convolutional 2D, hyper params
+
+Max Pooling
+
+Drop out
+
+optimization function
 
 # Performance
 
