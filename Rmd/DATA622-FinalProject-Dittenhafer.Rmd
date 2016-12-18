@@ -1,7 +1,7 @@
 ---
 title: "Emotion Recognition Neural Network"
 author: "Daniel Dittenhafer"
-date: "December 13, 2016"
+date: "December 18, 2016"
 output:
   pdf_document:
     number_sections: yes
@@ -34,10 +34,10 @@ msEmotionApi <- bibentry(bibtype="Misc",
                          url="https://www.microsoft.com/cognitive-services/en-us/emotion-api")
 
 labeledFaces <- bibentry(bibtype="TechReport",
-                         author=personList(person(family="Huang", first="Gary"),
-                                           person(family="Ramesh", first="Manu "),
-                                           person(family="Berg", first="Tamara"),
-                                           person(family="Learned-Miller", first="Erik")),
+                         author=personList(person(family="Huang", given="Gary"),
+                                           person(family="Ramesh", given="Manu "),
+                                           person(family="Berg", given="Tamara"),
+                                           person(family="Learned-Miller", given="Erik")),
                          institution ="University of Massachusetts, Amherst",
                          title="Labeled Faces in the Wild: A Database for Studying 
                   Face Recognition in Unconstrained Environments",
@@ -46,7 +46,7 @@ labeledFaces <- bibentry(bibtype="TechReport",
                          url="http://vis-www.cs.umass.edu/lfw/")
   
 transformImg <- bibentry(bibtype="Misc",
-                         author=person(family="Joshi", first="Prateek"),
+                         author=person(family="Joshi", given="Prateek"),
                          publisher="Packt Publishing Limited",
                          title="OpenCV with Python By Example",
                          year=2015,
@@ -54,25 +54,57 @@ transformImg <- bibentry(bibtype="Misc",
                          url="https://www.packtpub.com/mapt/book/application-development/9781785283932/2/ch02lvl1sec23/Embossing")
 
 roweFaceExpress <- bibentry(bibtype="Misc",
-                         author=person(family="Rowe", first="Brian"),
+                         author=person(family="Rowe", given="Brian"),
                          title="facial_expressions",
                          year=2016,
                          month="December",
                          url="https://github.com/muxspace/facial_expressions")
+
+kaggleDigitModel <- bibentry(bibtype="Misc",
+                         author=person(family="Majumdar", given="Somshubra"),
+                         title="Deep Convolutional Network using Keras",
+                         year=2016,
+                         month="April",
+                         url="https://www.kaggle.com/somshubramajumdar/digit-recognizer/deep-convolutional-network-using-keras")
+
+tenMisconceptions <- bibentry(bibtype="Misc",
+                         author=person(family="Reid", given="Stuart"),
+                         title="10 misconceptions about Neural Networks",
+                         year=2014,
+                         month="May",
+                         url="http://www.turingfinance.com/misconceptions-about-neural-networks/#algo")
+  
+goodfellowDeepLrn <- bibentry(bibtype="Misc",
+                         author=personList(person(family="Goodfellow", given="Ian"),
+                                           person(family="Bengio", given="Yoshua"),
+                                           person(family="Courville", given="Aaron")),
+                         title="Deep Learning",
+                         year=2016,
+                         month="September",
+                         url="http://deeplearningbook.org")
+
+chollet2015keras <- bibentry(bibtype="Misc",
+                              title="Keras",
+                              author=person(family="Chollet", given="Francois"),
+                              year=2015,
+                              publisher="GitHub",
+                              url="https://github.com/fchollet/keras")
+   
+
+kaggleCompetition <- bibentry(bibtype="Misc",
+                         author=person(family="Rowe", given="Brian"),
+                         title="Emotion Detection From Facial Expressions Competition",
+                         year=2016,
+                         month="December",
+                         publisher="Kaggle",
+                         url="https://inclass.kaggle.com/c/emotion-detection-from-facial-expressions/leaderboard")
+
 ```
-
-Submit your final project, which includes the source code of your best model, plus a short (3-4 page) paper summarizing your work. Provide:
-
-* an overview of the problem;
-* why it's challenging;
-* what techniques you used;
-* comparison of performance;
-* generalizable lessons learned/takeaways.
 
 
 # Overview
 
-As part of the course requirements for Machine Learning & Big Data (DATA622), the problem of developing a machine learning model capable of classifying human face images into various emotions was presented. Specifically, the goal was to design and train a neural network to recognize the following 8 emotions and emit a probability of each of the emotion classes given the input 2 dimensional image. 
+As part of the course requirements for Machine Learning & Big Data (DATA622), the problem of developing a machine learning model capable of classifying human face images into one of various emotion classes was presented. Specifically, the goal was to design and train a neural network to recognize the following 8 emotions and emit a probability of each of the emotion classes given the input 2 dimensional (2D) image. 
 
 1. anger
 2. contempt
@@ -83,7 +115,9 @@ As part of the course requirements for Machine Learning & Big Data (DATA622), th
 7. sadness
 8. surprise
 
-Although this problem is not new to machine learning and solutions already exist `r citep(msEmotionApi)`, the complexities of the mathematics alone are challenging. This, combined with the application of a variety of neural network techniques, make for many unique solutions. 
+Although this problem is not new to machine learning and solutions already exist `r citep(msEmotionApi)`, the complexities of the mathematics alone are challenging. This, combined with the application of a variety of neural network techniques, make for many unique solutions. Much of the academic theory for the neural network was derived from the text by Ian Goodfellow, et al, _Deep Learning_ `r citep(goodfellowDeepLrn)`.
+
+Finally, the result of the project was a [Kaggle competition ](https://inclass.kaggle.com/c/emotion-detection-from-facial-expressions/leaderboard) where the class tested their models against an unlabeled (and less clean) data set `r citep(kaggleCompetition)`.
 
 # Techniques
 
@@ -103,15 +137,175 @@ def cvBlurMotion1(img):
     return img2
 ```
 
-The function, above, along with all code developed as part of this project can be found in the [emotional-faces repository on GitHub](https://github.com/dwdii/emotional-faces).
+As it turns out, Keras, a deep learning library for Theano and TensorFlow, provides an image transformation class, `ImageDataGenerator` `r citep(chollet2015keras)`. This class takes source images as input and performs randomized transformations (within specified bounds). The following function wraps a call to the `ImageDataGenerator` class's flow function. This function was used to generate twelve additional transformed images per source image during the training process.
+
+```{python eval=FALSE}
+def imageDataGenTransform(img, y):
+
+    # Using keras ImageDataGenerator to generate random images
+    datagen = ImageDataGenerator(
+        featurewise_std_normalization=False,
+        rotation_range = 20,
+        width_shift_range = 0.10,
+        height_shift_range = 0.10,
+        shear_range = 0.1,
+        zoom_range = 0.1,
+        horizontal_flip = True)
+    
+    x = img.reshape(1, 1, img.shape[0], img.shape[1])
+    j = 0
+    for imgT, yT in datagen.flow(x, y, batch_size = 1, save_to_dir = None):
+        img2 = imgT
+        break
+
+    return img2
+```
+
+The functions, above, along with all code developed as part of this project can be found in the [emotional-faces repository on GitHub](https://github.com/dwdii/emotional-faces).
+
+The initial model was based on a model shared on Kaggle as part of a digit recognition competition `r citep(kaggleDigitModel)`. In general, it used the Keras library with  3 convolutional layers plus 2 dense layers including rectified linear unit activation and a softmax final activation for the class probabilities. This initial model was adjusted in minor ways, with followup training and validation to measure performance.
+
+The final model was very similar to the initial model in many ways. It still relied on convolutional layers at the input and hidden layers with 2 dense layers on the end, but had a forth convolutional hidden layer internally. 
+
+```{python, eval=FALSE}
+def emotion_model_jh_v5(outputClasses, input_shape=(1, 150, 150), verbose=False):
+    model = Sequential()
+    model.add(Convolution2D(32, 8, 8, input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(32, 5, 5))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Convolution2D(64, 3, 3))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    model.add(Convolution2D(64, 2, 2))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))    
+
+    model.add(Flatten())
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    model.add(Dense(outputClasses))
+    model.add(Activation('softmax'))
+    
+    if verbose:
+        print (model.summary())
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='rmsprop',
+                  metrics=['accuracy'])
+
+    return model
+```
+
+As you can see, the structure is approaching "deep" with the 4 hidden layers. Importantly, the convolutional kernel window begins larger (8x8) on the 150x150 input image, and gradually narrows through the remaining 3 convolutional layers. Binary cross entropy was used for the loss function, and Root Mean Square Propagation (RMSProp) was used for the optimization. RMSProp was used for its ability to consistently descend toward the minimum though admittedly not the fastest to arrive `r citep(tenMisconceptions)`. Kind of a tortise approach in a tortise vs hare analogy.  
+
+Max Pooling was used between convolutional layers to further strengthen the model's resilience to variance in the input images in terms of the exact position of important features (eyes, mouth, etc).
+
+Flattening brings us to a single data dimension for the final hidden layer and output layer's softmax function yielding the model's probability of each of the various emotions.
+
+The eight emotions were coded as integers with the index of the output being the associated integer.
+
+```{python, eval=FALSE}
+def emotionNumerics():
+    emoNdx = {}
+    emoNdx["anger"] = 0
+    emoNdx["disgust"] = 1
+    emoNdx["neutral"] = 2
+    emoNdx["happiness"] = 3
+    emoNdx["surprise"] = 4
+    emoNdx["fear"] = 5
+    emoNdx["sadness"] = 6
+    emoNdx["contempt"] = 7
+    return emoNdx
+```
 
 # Performance
 
-TBD
+The following table shows performance metrics recorded throughout the model development and training process. In general, these training runs were 20 epochs of batch size 200 unless otherwise noted. Strict notes on epoch/batch were note maintained.
+
+```{r, echo=FALSE}
+dsPerf <- data.frame(stringsAsFactors = FALSE)
+dsPerf <- rbind(dsPerf, cbind(name="Model v2", loss=9.1067240715026863, accuracy=0.435, trainingSec=4474))
+dsPerf <- rbind(dsPerf, cbind(name="Model v3", loss=8.0187525367736825, accuracy=0.50249999999999995, trainingSec=2499))
+dsPerf <- rbind(dsPerf, cbind(name="Model v4.1", loss=9.1067240715026863, accuracy=0.435, trainingSec=2137))
+dsPerf <- rbind(dsPerf, cbind(name="Model v4.2", loss=8.0187525367736825, accuracy=0.50249999999999995, trainingSec=3108))
+dsPerf <- rbind(dsPerf, cbind(name="Model v5", loss=6.9666682052612305, accuracy=0.19500000000000001, trainingSec=1682))
+dsPerf <- rbind(dsPerf, cbind(name="Model v6", loss=1.7120025205612182, accuracy=0.23749999999999999, trainingSec=3020))
+dsPerf <- rbind(dsPerf, cbind(name="Model v7", loss=7.9999716758728026, accuracy=0.14000000000000001, trainingSec=4610))
+dsPerf <- rbind(dsPerf, cbind(name="Model v8", loss=1.6948303937911988, accuracy=0.19500000000000001, trainingSec=3313))
+dsPerf <- rbind(dsPerf, cbind(name="Model v6 w/ flatten", loss=7.1107604598999021, accuracy=0.17249999999999999, trainingSec=3044))
+dsPerf <- rbind(dsPerf, cbind(name="Model v6 (Docker Cloud)", loss=11.153776299942534, accuracy=0.307974335472044, trainingSec=3597))
+dsPerf <- rbind(dsPerf, cbind(name="Model v3.1", loss=1.5994336946608279, accuracy=0.22314049603196873, trainingSec=687))
+dsPerf <- rbind(dsPerf, cbind(name="Model v3.2", loss=1.5697537031802502, accuracy=0.35989011021760792, trainingSec=772))
+dsPerf <- rbind(dsPerf, cbind(name="cnn_model_jhamski", loss=0.31684105933367551, accuracy=0.34615384648134423, trainingSec=636))
+dsPerf <- rbind(dsPerf, cbind(name="cnn_model_jhamski 150x150", loss=0.51708218340690315, accuracy=0.6428571428571429, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="emotion_model_jh_v2", loss=0.27507745529690836, accuracy=0.55616438421484538, trainingSec=2027))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v3 epoch x40", loss=0.078623215722688183, accuracy=0.88359303391384048, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v3 epoch x60", loss=0.070701496646681364, accuracy=0.91750687442713108, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v4 Epoch 20", loss=0.23540275704827893, accuracy=0.61279229702942961, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v4 Epoch 100", loss=0.1823677838099789, accuracy=0.8466299859988804, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v5 Epoch 20", loss=0.13165531713295181, accuracy=0.78610729039781191, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v5 Epoch 100", loss=0.097839370133615211, accuracy=0.9312242091603915, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v5 Epoch 27 13082 examples (8 transforms)", loss=0.1024, accuracy=0.9242, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v5 Epoch 27 14536 examples (9 transforms)", loss=0.0941, accuracy=0.9265, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v5 Epoch 20 29072 examples (19 transforms)", loss=0.25542287444019252, accuracy=0.8000825536598789, trainingSec=NA))
+dsPerf <- rbind(dsPerf, cbind(name="jh_v5 Epoch 25 29072 examples (19 transforms)", loss=0.26566209155840714, accuracy=0.82305998899284538, trainingSec=NA))
+
+dsPerf$loss <- as.numeric(as.character(dsPerf$loss))
+dsPerf$accuracy <- as.numeric(as.character(dsPerf$accuracy))
+dsPerf$trainingSec <- as.numeric(as.character(dsPerf$trainingSec))
+
+#summary(dsPerf)
+```
+
+```{r, echo=FALSE}
+kable(dsPerf, digits=c(0, 3, 3, 3), 
+      caption = "Model Performance", 
+      col.names = c("Name", "Val Loss", "Val Acc", "Training (s)"))
+```
+
+The source training data was discovered to be unbalanced. This likely contributed to early poor performance of the models. An algorithm was created to reduce the over-represented emotion classes inorder to provide a more balanced data set for training. In hind sight, the under-represented emotion classes probably should have been augmented using transformations and this would have maintained a greater diversity in the training data.
+
+The memory requirements for training the model grew as more examples and transformation were included. During the Model v6 - 8 experiment time period, the laptop used for initial development became insuffiencient for further training. The deep learning Docker container was migrated to Docker Cloud integrated with Amazon Web Services. This enabled computing resources independent of the researcher's laptop to be applied to the training, as well as increased scalablility of these computing resources. 
+
+A side discussion was held with some classmates and James Hamski reported his model was training quickly and performing reasonably well. Experiments were performed with the Hamski model. Significantly, the researcher's prior experiements were using the full sized 350x350 image data, but scaling the images down to 150x150 significantly improved training time while maintaining accuracy for the given epoch counts.
+
+Experiments on variations of the Hamski model were performed leading up to the `emotion_model_jh_v5` shown above. This, combined with extensions to the transformations for training, became the final neural network used in the Kaggle Competition.
+
+```{r, echo=FALSE}
+dsPerf <- data.frame(stringsAsFactors = FALSE)
+dsPerf <- rbind(dsPerf, cbind(submission=1, model="jh_v5", tranforms=9, epochs=27, score=0.34351))
+dsPerf <- rbind(dsPerf, cbind(submission=2, model="jh_v5", tranforms=19, epochs=20, score=0.57252))
+dsPerf <- rbind(dsPerf, cbind(submission=3, model="jh_v5", tranforms=19, epochs=25, score=0.52672))
+
+dsPerf$score <- as.numeric(as.character(dsPerf$score))
+dsPerf$tranforms <- as.numeric(as.character(dsPerf$tranforms))
+dsPerf$epochs <- as.numeric(as.character(dsPerf$epochs))
+dsPerf$submission <- as.numeric(as.character(dsPerf$submission))
+
+#summary(dsPerf)
+```
+
+```{r, echo=FALSE}
+kable(dsPerf, digits=c(0, 0, 0, 0, 5), 
+      caption = "Kaggle Submissions", 
+      col.names = c("Submission", "Model", "Transforms", "Epochs", "Public Score"))
+```
+
+* Transforms: The number of transforms applied to the training data.
+* Epochs: The number of epochs of batch size 200 that the network was trained.
+* Public Score: The Kaggle public score during the competition.
+
+Note the increase in transforms used in training from the first submission to the second. Even with fewer training epochs, the network trained with more transforms resulted in better competition performance (generalization). Attempts were made to further increase transforms used for training, but memory limits were reached again after adding just two addition transforms for a total of 21 per raw input image. The training for the 21-transform network is still taking place at the time of this writing and has therefore not (yet) been submitted to the Kaggle competition. 
 
 # Conclusions
 
-TBD
+Throughout the project, new techniques were learned and in most cases applied to the emotion detection model. Several points are significant in terms of a well performing model for the emotion detection scenario. The input data, 2D images, mean 2D convolutional layers are an excellent fit for the problem. Additionally, full resolution images appear to be less important for the training based on the relative success of the reduced size (150x150) images as compared to the 350x350 original size images. Finally, the use of image transformations (data augmentation) showed a real benefit to the generalizability of the model.
 
 
 # References
